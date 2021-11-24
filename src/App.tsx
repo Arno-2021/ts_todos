@@ -1,26 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { StoreType } from './Store'
+import { addTodos, checkTodos, delTodos } from './Store/actions/todos'
+export default function App() {
+    const list = useSelector((state: StoreType) => state.todos)
+    console.log(list)
+    const [content, setContent] = useState('')
+    const typeContent = (e: React.ChangeEvent<HTMLInputElement>) =>
+        setContent(e.target.value)
+    const dispatch = useDispatch()
+    const subTodo = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.code === 'Enter') {
+            dispatch(addTodos(content))
+            setContent('')
+        }
+    }
+    const del = (id: number) => {
+        dispatch(delTodos(id))
+    }
+    return (
+        <div>
+            <input
+                type='text'
+                value={content}
+                onChange={typeContent}
+                onKeyUp={subTodo}
+            />
+            <br />
+            <ul>
+                {list.map(item => (
+                    <li
+                        key={item.id}
+                        className={item.done ? 'complete' : ''}
+                        onClick={() => dispatch(checkTodos(item.id))}
+                    >
+                        {item.name}
+                        <button onClick={() => del(item.id)}>X</button>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
 }
-
-export default App;
